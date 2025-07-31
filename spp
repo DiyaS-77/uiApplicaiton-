@@ -1,12 +1,6 @@
 def controller_selected(self, address):
     """
     Handles logic when a controller is selected from the list. Stores the bd_address and interface.
-
-    Args:
-        address: selected controller bd_address.
-
-    Returns:
-        None
     """
     self.controllers_list = BluetoothDeviceManager.get_controllers_connected()
     controller = address.text()
@@ -15,20 +9,28 @@ def controller_selected(self, address):
 
     if controller in self.controllers_list:
         self.interface = self.controllers_list[controller]
-    run(self.log, f"hciconfig -a {self.interface} up")
+        run(self.log, f"hciconfig -a {self.interface} up")
 
-    # Remove previous inserted detail row, if any
-    if self.previous_row_selected is not None:
+    # Get current controller row
+    controller_row = self.controllers_list_widget.currentRow()
+
+    # Check if there's already a detail row inserted just after this
+    if (
+        self.previous_row_selected is not None
+        and self.previous_row_selected == controller_row + 1
+    ):
         self.controllers_list_widget.takeItem(self.previous_row_selected)
-        self.previous_row_selected = None  # Reset it
 
-    # Insert new interface detail row
-    row = self.controllers_list_widget.currentRow()
-    item = QListWidgetItem(
+    # Create new detail row
+    detail_item = QListWidgetItem(
         BluetoothDeviceManager.get_controller_interface_details(controller, self.log)
     )
-    item.setTextAlignment(Qt.AlignmentFlag.AlignHCenter)
-    self.controllers_list_widget.insertItem(row + 1, item)
-    self.previous_row_selected = row + 1
+    detail_item.setTextAlignment(Qt.AlignmentFlag.AlignHCenter)
 
-    return True
+    # Insert it just after controller row
+    self.controllers_list_widget.insertItem(controller_row + 1, detail_item)
+
+    # Update tracking
+    self.previous_row_selected = controller_row + 1
+if self.bd_address == controller:
+    return  # already selected
