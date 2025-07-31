@@ -1,0 +1,34 @@
+def controller_selected(self, address):
+    """
+    Handles logic when a controller is selected from the list. Stores the bd_address and interface.
+
+    Args:
+        address: selected controller bd_address.
+
+    Returns:
+        None
+    """
+    self.controllers_list = BluetoothDeviceManager.get_controllers_connected()
+    controller = address.text()
+    self.log.info(f"Controller Selected: {controller}")
+    self.bd_address = controller
+
+    if controller in self.controllers_list:
+        self.interface = self.controllers_list[controller]
+    run(self.log, f"hciconfig -a {self.interface} up")
+
+    # Remove previous inserted detail row, if any
+    if self.previous_row_selected is not None:
+        self.controllers_list_widget.takeItem(self.previous_row_selected)
+        self.previous_row_selected = None  # Reset it
+
+    # Insert new interface detail row
+    row = self.controllers_list_widget.currentRow()
+    item = QListWidgetItem(
+        BluetoothDeviceManager.get_controller_interface_details(controller, self.log)
+    )
+    item.setTextAlignment(Qt.AlignmentFlag.AlignHCenter)
+    self.controllers_list_widget.insertItem(row + 1, item)
+    self.previous_row_selected = row + 1
+
+    return True
