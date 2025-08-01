@@ -1,0 +1,10 @@
+def _connect_system_bus_with_retry(self, retries=5, delay=0.5):
+    for attempt in range(retries):
+        try:
+            self.bus = dbus.SystemBus()
+            return
+        except dbus.exceptions.DBusException as e:
+            self.log.info(f"[WARN] Retry {attempt+1}/{retries} - D-Bus not ready: {e}")
+            time.sleep(delay)
+    raise RuntimeError("Failed to connect to D-Bus after multiple retries.")
+self._connect_system_bus_with_retry()
