@@ -1,0 +1,20 @@
+def get_device_name(self, device_address):
+    """
+    Returns the alias (name) of a Bluetooth device given its MAC address.
+    Args:
+        device_address (str): MAC address of the device.
+    Returns:
+        str: Device name or 'Unknown' if not found.
+    """
+    try:
+        bus = dbus.SystemBus()
+        manager = dbus.Interface(bus.get_object("org.bluez", "/"), "org.freedesktop.DBus.ObjectManager")
+        objects = manager.GetManagedObjects()
+        for path, interfaces in objects.items():
+            if "org.bluez.Device1" in interfaces:
+                props = interfaces["org.bluez.Device1"]
+                if str(props.get("Address")) == device_address:
+                    return str(props.get("Alias", "Unknown"))
+    except Exception as e:
+        self.log.info(f"Failed to get device name for {device_address}: {e}")
+    return "Unknown"
